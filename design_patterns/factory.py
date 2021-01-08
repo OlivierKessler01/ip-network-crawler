@@ -1,29 +1,23 @@
-import unittest
-
-class TestConcretion:
-    def __init__(self):
-        pass
+import sys
 
 class Factory:
     '''
         Base class for factories
         Use composition over inheritance when possible
     '''
-    classes_to_instanciate = {"test" : TestConcretion}
+    classes_to_instanciate = {}
 
-    def get(self, classname):
+    def __init__(self, classes_to_instanciate: dict[str, str]):
+        self.classes_to_instanciate = classes_to_instanciate
+
+    def get(self, classname:str, out=sys.stdout):
+        '''
+            classname : the class to instanciate
+            out : output to print the errors to
+        '''
+
         try:
             object_to_return = (self.classes_to_instanciate[classname])()
             return object_to_return
         except KeyError:
-            print("No class found for index", classname)
-
-
-class FactoryTest(unittest.TestCase):
-    def test_instantiation(self):
-        factory = Factory()
-        concretion = factory.get("test")
-        self.assertIsInstance(concretion, TestConcretion)
-
-if __name__ == "__main__":
-    unittest.main()
+            out.write("No class found for index " + classname)

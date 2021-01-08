@@ -1,23 +1,33 @@
-import uuid
-
-from smbprotocol.connection import Connection, Dialects
-import nmap3
+from design_patterns.factory import Factory
 
 '''
 Class that crawls the ipv4 network in research for open files
 '''
 class Crawler:
-    smb_ports = []
-    rsync_ports = []
-    mysql_ports = []
+    ports = []    
 
-    def scan_for_ports_opened(self, protocol) -> int:
+class CrawlerSMB(Crawler):
+    ports = []
 
-        nmap = nmap3.Nmap()
-        result = nmap.scan_top_ports("scanme.nmap.org")
-        print(type(result))
-        print(result)
-        return 0
+class CrawlerMysql(Crawler):
+    ports = ['3306']
+
+class CrawlerRsync(Crawler):
+    ports = []
+
+class CrawlerFactory:
+    classes_to_instanciate = {
+        'smb' : CrawlerSMB,
+        'rsync' : CrawlerRsync,
+        'mysql' : CrawlerMysql 
+    }
+
+    def __init__(self, classes_to_instanciate: dict[str, str]):
+        self.generic_factory = Factory(classes_to_instanciate)
+
+
+
+
     
        
     
