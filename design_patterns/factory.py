@@ -5,10 +5,13 @@ class Factory:
         Base class for factories
         Use composition over inheritance when possible
     '''
-    classes_to_instanciate = {}
 
-    def __init__(self, classes_to_instanciate: dict[str, str]):
+    def __init__(self, classes_to_instanciate : dict[str, str] = {}):
         self.classes_to_instanciate = classes_to_instanciate
+        self.last_requested = None
+
+    def get_last(self):
+        return self.last_requested
 
     def get(self, classname:str, out=sys.stdout):
         '''
@@ -17,7 +20,7 @@ class Factory:
         '''
 
         try:
-            object_to_return = (self.classes_to_instanciate[classname])()
-            return object_to_return
+            self.last_requested = (self.classes_to_instanciate[classname])()
+            return self.last_requested
         except KeyError:
             out.write("No class found for index " + classname)
