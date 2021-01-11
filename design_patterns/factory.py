@@ -2,7 +2,7 @@ import sys
 
 class Factory:
     '''
-        Base class for factories
+        The Factory method design pattern is a creational pattern, it allows a class to defer instanciation to the factory, thus doesn't need to bother with the complexity of object instantiation
         Use composition over inheritance when possible
     '''
 
