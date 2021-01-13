@@ -25,15 +25,15 @@ class RunLengthStrategy(Strategy):
 
 
 class Compressor:
-    def __init__(self, bitmap_compressor, runlength_compressor):
+    def __init__(self, bitmap_compressor: Strategy, runlength_compressor: Strategy):
         self.bitmapCompressor = bitmap_compressor
         self.runlength_compressor = runlength_compressor
 
-    def compress(self, str_to_compress):
-        if(1 == 1):
-            self.runlength_compressor.algorithm_interface(str_to_compress)
+    def compress(self, str_to_compress, flag=0):
+        if(flag == 1):
+            return self.runlength_compressor.algorithm_interface(str_to_compress)
         else:
-            self.bitmapCompressor.algorithm_interface(str_to_compress)
+            return self.bitmapCompressor.algorithm_interface(str_to_compress)
 
 
 

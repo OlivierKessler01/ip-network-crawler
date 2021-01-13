@@ -3,6 +3,7 @@ import timeit
 #import asyncio
 import threading
 import json
+import sys
 
 class PortTester:
     '''
@@ -18,15 +19,28 @@ class PortTester:
          Uses python-nmap to scan for the top 10 most common ports in search for opened ones
         '''
         nmap = nmap3.Nmap()
-        result = nmap.scan_top_ports(domain_or_ip, number_ports)
-        #result = nmap.scan_top_ports(domain_or_ip, number_ports, args="-f --badsum -Pn")
+        #result = nmap.scan_top_ports(domain_or_ip, number_ports)
+        #nmap arguments : 
+        #       -f : Fragment TCP packets to make it harder for firewalls to detect the sniffing
+        #      -Pn : No ping, disables host discovery, scans everything
+        # --badsum : Asks nmap to use an invalid checksum, any firewall answering the request doesn't bother checking checksum
+        #   --open : Show only open ports
+        result = nmap.scan_top_ports(domain_or_ip, number_ports, args=" -f --open")
         return result
 
     def scan_domain(self, domain_or_ip : str):
         self.semaphore.acquire()
         start = timeit.default_timer()
-        result = self.scan_for_ports_opened(domain_or_ip, 100)
-        print(json.dumps(result, sort_keys=False, indent=4))
+        result = self.scan_for_ports_opened(domain_or_ip, 20)
+        print("The result of the scan uses " + str(sys.getsizeof(str(result))) + " bytes of memory")
+        
+        original_stdout = sys.stdout
+
+        with open('scan.txt', "w") as f:
+            sys.stdout = f
+            print(result)
+            sys.stdout = original_stdout
+
         stop = timeit.default_timer()
         print ('Time :', stop - start, ' seconds')
         self.semaphore.release()
@@ -34,5 +48,5 @@ class PortTester:
     def scan_domains_multithreaded(self, domains:list = []):
         for domain in domains:
             print(domain)
-            thread = threading.Thread(target=self.scan_domain, args=domain)  
+            thread = threading.Thread(target=self.scan_domain, args=(domain,))  
             thread.start()
