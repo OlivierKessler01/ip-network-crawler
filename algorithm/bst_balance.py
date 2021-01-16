@@ -34,6 +34,5 @@ class Solution:
 
 
 if __name__ == "__main__":
-    Treenode
     sol = Solution()
     sol.balanceBST(TreeNode())
