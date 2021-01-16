@@ -1,5 +1,10 @@
 import sys
 
+class InstantiationError(Exception):
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
 class Factory:
     '''
         The Factory method design pattern is a creational pattern, it allows a class to defer instanciation to the factory, thus doesn't need to bother with the complexity of object instantiation
@@ -24,3 +29,4 @@ class Factory:
             return self.last_requested
         except KeyError:
             out.write("No class found for index " + classname)
+            raise InstantiationError("get", "No class found for index ")

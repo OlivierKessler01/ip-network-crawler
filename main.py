@@ -1,5 +1,4 @@
-from crawler.crawler import CrawlerInterface
-from crawler.port_scanner import PortScanner
+from crawler.crawler import CrawlerFactory
 import sys, getopt
 
 def main(argv): 
@@ -9,7 +8,9 @@ def main(argv):
             port_scanner = PortScanner()
             port_scanner.scan_domain(domains[0])
         elif argv[0] == "crawl":
-            print('Crawl')
+            crawler_factory = CrawlerFactory()
+            crawler = crawler_factory.get('ssh')
+            crawler.crawl(['google.fr'])
         else:
             raise IndexError
     except IndexError:
