@@ -7,7 +7,7 @@ class PortScanner:
     '''
         Allows you to scan for ports opened
     '''
-
+    
     def scan_for_ports_opened(self, domain_or_ip, number_ports=10) -> str:
         '''
          Uses python-nmap to scan for the top 10 most common ports in search for opened ones
@@ -27,14 +27,11 @@ class PortScanner:
         start = timeit.default_timer()
         result = self.scan_for_ports_opened(domain_or_ip, 20)
         print("The result of the scan uses " , sys.getsizeof(str(result))," bytes of memory")
-        original_stdout = sys.stdout
-
-        with open('scan.txt', "w") as f:
-            sys.stdout = f
-            print(result)
-            sys.stdout = original_stdout
         
-        print("Printed result in scan.txt")
+        with open('scan.json', "w") as f:
+            f.write(json.dumps(result, separators=(',', ':')))
+        
+        print("Printed result in scan.json")
         stop = timeit.default_timer()
         print ('Time :', stop - start, ' seconds')
 
