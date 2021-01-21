@@ -1,6 +1,6 @@
 from io import StringIO
 import unittest
-from factory import Factory
+from factory import Factory, InstantiationError
 
 class TestConcretion:
         def __init__(self):
@@ -24,8 +24,8 @@ class FactoryTest(unittest.TestCase):
             factory.get("tt", out)
         except KeyError:
             self.fail("get() raised KeyError unexpectedly")
-
-        self.assertEqual(out.getvalue().strip(), "No class found for index tt")
+        except InstantiationError:
+            self.assertEqual(out.getvalue().strip(), "No class found for index tt")
 
 
 if __name__ == "__main__":

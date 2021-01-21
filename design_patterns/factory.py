@@ -29,4 +29,4 @@ class Factory:
             return self.last_requested
         except KeyError:
             out.write("No class found for index " + classname)
-            raise InstantiationError("get", "No class found for index ")
+            raise InstantiationError("get", "No class found for index " + classname)
