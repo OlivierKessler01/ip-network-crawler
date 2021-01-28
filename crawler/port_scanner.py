@@ -20,7 +20,7 @@ class PortScanner:
         # --badsum : Asks nmap to use an
         #invalid checksum, any firewall answering the request doesn't bother checking checksum
         #   --open : Show only open ports
-        result = nmap.scan_top_ports(domain_or_ip, number_ports, args=" -f --open")
+        result = nmap.scan_top_ports(domain_or_ip, number_ports, args=" -Pn -f --open")
         return result
 
     def scan_domain(self, domain_or_ip : str):

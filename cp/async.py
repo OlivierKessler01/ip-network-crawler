@@ -36,8 +36,8 @@ async def download_all_sites(sites):
              
 if __name__ == "__main__":
     sites = [
-        "http://stephanemourey.fr",
-        "http://olivier-wandering.blog"
+        "https://google.fr",
+        "https://facebook.com"
     ]
     
 
