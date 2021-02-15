@@ -14,11 +14,11 @@ def main(argv):
             crawler.crawl_file()
         else:
             raise IndexError
-    except IndexError:
+    except IndexError as err:
         print('#Scanning network')
         print('Only two way of using it this app :')
-        print('sudo python3 main.py scan_ports XXX.XXX.XXX.XXX/XX, CIDR notation for a range of IP')
-        print('sudo python3 main.py scan_ports XXX.XXX.XXX.XXX, for a single IP')
+        print("sudo python3 main.py scan_ports 2.16.208.0/30, CIDR notation for a range of IP")
+        print("sudo python3 main.py scan_ports XXX.XXX.XXX.XXX, for a single IP")
         print('sudo python3 main.py scan_ports domain.domain')
         print('#Seeking unprotected servers')
         print('sudo python3 main.py crawl')

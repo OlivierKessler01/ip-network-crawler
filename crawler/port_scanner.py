@@ -2,6 +2,7 @@ import nmap3
 import timeit
 import json
 import sys
+import os
 
 class PortScanner:
     '''
@@ -25,6 +26,12 @@ class PortScanner:
 
     def scan_domain(self, domain_or_ip : str):
         start = timeit.default_timer()
+
+        try:
+            os.remove('scan.json')
+        except FileNotFoundError as err:
+            print("No file to delete.")
+
         result = self.scan_for_ports_opened(domain_or_ip, 20)
         print("The result of the scan uses " , sys.getsizeof(str(result))," bytes of memory")
         

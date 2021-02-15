@@ -9,12 +9,24 @@ Classes that tests servers in search for non-protected services
 class CrawlerInterface:
     def __init__(self):
         self.ports = []
-
+        self.dictionary_credentials = {
+            'root': 'root',
+            'admin': 'admin',
+            'root' : 'admin',
+            'admin': 'root',
+            'root': '123',
+            'user' : 'user',
+            'test': 'test',
+            'ubuntu' : 'ubuntu',
+            'oracle': 'oracle'
+        }
+    
     def crawl_file(self, filename="scan.json") -> str:
         pass
 
 class CrawlerSMB(CrawlerInterface):
     def __init__(self):
+        super().__init__()
         self.ports = []
 
     def crawl_file(self, filename="scan.json") -> str:
@@ -22,6 +34,7 @@ class CrawlerSMB(CrawlerInterface):
 
 class CrawlerMysql(CrawlerInterface):
     def __init__(self):
+        super().__init__()
         self.ports = ['3306']
 
     def crawl_file(self, filename="scan.json") -> str:
@@ -29,6 +42,7 @@ class CrawlerMysql(CrawlerInterface):
 
 class CrawlerRsync(CrawlerInterface):
     def __init__(self):
+        super().__init__()
         self.ports = []
 
     def crawl_file(self, filename="scan.json") -> str:
@@ -36,35 +50,64 @@ class CrawlerRsync(CrawlerInterface):
 
 class CrawlerSsh(CrawlerInterface):
     def __init__(self):
+        super().__init__()
         self.ports = ['22']
+        
+    def try_to_connect(self, host):
+        '''
+            Iterate throuh the credentials dictionnary and try to connect
+        '''
+        for credential in self.dictionary_credentials.items():
+            try:
+                print(
+                    'Trying SSH connect to ', 
+                    host, 'with : ', credential[0], ':', credential[1]
+                )
+                client = SSHClient()
+                client.set_missing_host_key_policy(AutoAddPolicy)
+                client.connect(
+                    host, 
+                    timeout=1, 
+                    port=self.ports[0], 
+                    username=credential[0], 
+                    password=credential[1], 
+                    look_for_keys=False, 
+                    allow_agent=False
+                )
+                print("SSH server not protected : ", host)
+                with open("unprotected_hosts_ssh.txt", "w") as f:
+                    f.write(str(host) + "\n")
+                break
+
+            except AuthenticationException as err:
+                print('AuthenticationException : ', str(err))
+            except SSHException as err:
+                print('SSHException : ', str(err))
+            except error as err:
+                print('Socket.error : ', str(err))
+            
+            client.close()
+
 
     def crawl_file(self, filename="scan.json") -> str:
+        '''
+            Parses the json file containing the nmap result
+            Then calls the function which tries to connect
+        '''
         with open(filename, "r") as json_data:
             data = json.load(json_data)
            
         for d in data.items():
             try:
                 for port in d[1]['ports']:
-                    if port['protocol'] == "tcp" and port["portid"] == self.ports[0] and port['state'] == "open":
-                        try:
-                            print('Trying SSH connect to ', d[0])
-                            client = SSHClient()
-                            client.set_missing_host_key_policy(AutoAddPolicy)
-                            client.connect(d[0], timeout=2, port=self.ports[0], username="root", password="v6NMrF25y@", look_for_keys=False, allow_agent=False)
-                            print("SSH server not protected : ", d[0])
-                            with open("unprotected_hosts_ssh.txt", "w") as f:
-                                f.write(str(d[0]) + "\n")
-
-                        except AuthenticationException as err:
-                            print('AuthenticationException : ', str(err))
-                        except SSHException as err:
-                            print('SSHException : ', str(err))
-                        except error as err:
-                            print('Socket.error : ', str(err))
-
-                        client.close()
+                    if (port['protocol'] == "tcp" and
+                        port["portid"] == self.ports[0] and 
+                        port['state'] == "open"):
+                        self.try_to_connect(d[0])
                         print('Done trying SSH connection to :', d[0])
             except KeyError:
+                continue
+            except IndexError as err:
                 continue
 
 class CrawlerFactory:
