@@ -2,6 +2,7 @@ from design_patterns.factory import Factory
 from paramiko import AutoAddPolicy, SSHClient, SSHException, AuthenticationException
 from socket import error
 import json
+from os import chmod
 
 '''
 Classes that tests servers in search for non-protected services
@@ -9,17 +10,17 @@ Classes that tests servers in search for non-protected services
 class CrawlerInterface:
     def __init__(self):
         self.ports = []
-        self.dictionary_credentials = {
-            'root': 'root',
-            'admin': 'admin',
-            'root' : 'admin',
-            'admin': 'root',
-            'root': '123',
-            'user' : 'user',
-            'test': 'test',
-            'ubuntu' : 'ubuntu',
-            'oracle': 'oracle'
-        }
+        self.dictionary_credentials = [
+            ['root', 'root'],
+            ['admin', 'admin'],
+            ['root' , 'admin'],
+            ['admin', 'root'],
+            ['root', '123'],
+            ['user' , 'user'],
+            ['test', 'test'],
+            ['ubuntu', 'ubuntu'],
+            ['oracle', 'oracle']
+        ]
     
     def crawl_file(self, filename="scan.json") -> str:
         pass
@@ -57,7 +58,7 @@ class CrawlerSsh(CrawlerInterface):
         '''
             Iterate throuh the credentials dictionnary and try to connect
         '''
-        for credential in self.dictionary_credentials.items():
+        for credential in self.dictionary_credentials:
             try:
                 print(
                     'Trying SSH connect to ', 
@@ -67,7 +68,7 @@ class CrawlerSsh(CrawlerInterface):
                 client.set_missing_host_key_policy(AutoAddPolicy)
                 client.connect(
                     host, 
-                    timeout=1, 
+                    timeout=2, 
                     port=self.ports[0], 
                     username=credential[0], 
                     password=credential[1], 
@@ -75,14 +76,17 @@ class CrawlerSsh(CrawlerInterface):
                     allow_agent=False
                 )
                 print("SSH server not protected : ", host)
-                with open("unprotected_hosts_ssh.txt", "w") as f:
+                with open("unprotected_hosts_ssh.txt", "a") as f:
                     f.write(str(host) + "\n")
                 break
 
             except AuthenticationException as err:
+                with open("authentication_error_ssh.txt", "a") as f:
+                    f.write(str(host) + "\n")
                 print('AuthenticationException : ', str(err))
             except SSHException as err:
                 print('SSHException : ', str(err))
+                break;
             except error as err:
                 print('Socket.error : ', str(err))
             
@@ -96,6 +100,16 @@ class CrawlerSsh(CrawlerInterface):
         '''
         with open(filename, "r") as json_data:
             data = json.load(json_data)
+
+        #Empty results file
+        with open("unprotected_hosts_ssh.txt", "w") as f:
+            f.truncate(0)
+
+        with open("authentication_error_ssh.txt", "w") as f:
+            f.truncate(0)
+
+        chmod("unprotected_hosts_ssh.txt", 0o775)
+        chmod("authentication_error_ssh.txt", 0o775)
            
         for d in data.items():
             try:
